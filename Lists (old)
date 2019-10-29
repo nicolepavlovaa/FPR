@@ -1,0 +1,35 @@
+#lang racket
+(define (accumulate-i op nv a b term next) (if (> a b) nv (accumulate-i op (op nv (term a)) (next a) b term next)))
+(define (accumulate op nv a b term next) (if (> a b) nv (op (term a) (accumulate op nv (next a) b term next))))
+(define (1+ x) (+ x 1))
+(define (exists? pred? a b) (accumulate (lambda (x y) (or x y)) #f a b pred? 1+))
+
+(define (forall? pred? a b) (not (exists? (lambda (k) (not (pred? k))) a b)))
+
+(define (prime? n) (and (> n 1) (not (exists? (lambda (k) (= (remainder n k) 0)) 2 (sqrt n)))))
+
+(define (length l) (if (null? l) 0 (+ 1 (length (cdr l)))))
+(define (sum l) (foldr (+ 0 l)))
+(define (last-el l) (if (null? (cdr l)) (car l) (last-el(cdr l))))
+(define (my-append l1 l2) (if (null? l1) l2 (cons (car l1) (my-append (cdr l1) l2))))
+(define l (list 1 2 3 4 5))
+(define l2 (list 6 7 8 9 10))
+(my-append l l2)
+(last-el l)
+
+(define (push-back x l) (if (null? l) (list x) (my-append (list(car l)) (push-back x (cdr l)))))
+(define (my-member x? l) (if (null? l) #f (if (eq? (car l) x?) #t (my-member x? (cdr l)))))
+(define (from-to a b) (if (> a b) '() (cons a (from-to (+ a 1) b))))
+(from-to 10 20)
+(push-back 100 l)
+
+(define (my-reverse l) (if (null? l) l (my-append (my-reverse (cdr l)) (list (car l)))))
+(define (my-map f l) (if (null? l) '() (cons (f (car l)) (my-map f (cdr l)))))
+
+
+
+
+
+
+
+
