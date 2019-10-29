@@ -1,0 +1,72 @@
+#lang racket
+(cons 1 2)
+(cons (cons 1 2) 3)
+(define foo (cons 1 2))
+foo
+(cons 1 null)
+(define bar (cons 1 null))
+bar
+(define mylist (cons 1(cons 2(cons 3 null))))
+mylist
+(equal? (list 1 2 3) mylist)
+
+(define (mylistref lst n) (if(zero? n)(car lst)(mylistref(cdr lst)(- n 1))))
+(mylistref (list "a" "b" "c") 2)
+
+(define (double x)(* 2 x))
+(map double (list 1 2 3))
+
+(define (doubleall lst)(map double lst))
+(doubleall (list 1 2 3))
+
+(define (mymap fn lst)(if(null? lst)null(cons(fn(car lst))(mymap fn (cdr lst)))))
+(mymap double (list 1 2 3 4))
+
+(define (myfoldr fn start lst)(if(null? lst)start(fn(car lst)(myfoldr fn start (cdr lst)))))
+(myfoldr + 0 (list 1 2 3 4))
+
+
+(define (factorial n) (if 😊 n 0) 1 (* n (fact (- n 1)))))
+
+(define (for n r i) (if(<= i n) (for n (* r i) (+ i 1)) r))
+(define (fact n) (for n 1 1))
+
+(define (dist x1 y1 x2 y2) (define dx (- x2 x1)) (define dy (- y2 y1)) (define (sq x) (* x x)) (sqrt (+ (sq dx) (sq dy))))
+
+(define (fact2 n) (define (for2 n r i) (if(<= i n) (for2 n (* r i) (+ i 1)) r)) (fact2 n 1 1))
+
+(define (sq x) (* x x))
+(define (dist2 x1 y1 x2 y2) (let ((dx (- x2 x1)) (dy (- y2 y1))) (sqrt(+ (sq dx) (sq dy)))))
+
+(define (area x1 y1 x2 y2 x3 y3) (let*((a (dist x1 y1 x2 y2)) (b (dist x1 y1 x3 y3)) (c (dist x2 y2 x3 y3)) (p (/ (+ a b c) 2))) (sqrt (* p (- p a) (- p b) (- p c)))))
+
+(define (count-dig num)
+  (if (< num 0)
+      (count-dig (- num))
+      (if (< num 10)
+          1
+          (+ 1 (count-dig(quotient num 10))))))
+
+(define (count-dig-iter num) (define (for curr-n res) (if (< curr-n 10) (+ res 1) (for (quotient curr-n 10) (+ res 1)))) (if(< num 0) (for (- num) 0) (for num 0)))
+
+(define (reverse num)
+  (define (for curr-num res)
+    (if (< curr-num 10)
+        (+ curr-num res)
+        (for (quotient curr-num 10)
+          (+ res
+             (*
+              (remainder curr-num 10)
+              (expt 10
+                    (- (count-dig-iter curr-num) 1)))))))
+  (for num 0))
+
+(define (palindrome? num)
+  (define (for str i n)
+    (cond ((= i n) #t)
+          ((not(= i (- (- n i) 1))) #f)
+          (for str (+ i 1) n)))
+  (for num 0 (count-dig num)))
+
+
+(palindrome? 12421)
