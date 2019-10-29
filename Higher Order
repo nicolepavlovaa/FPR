@@ -1,0 +1,43 @@
+#lang racket
+
+
+(define (sum-step a b next) (if (> a b) 0 (+ a (sum-step (next a) b next))))
+(define (1+ k) (+ k 1))
+(sum-step 1 5 1+)
+
+(define (2* k) (* k 2))
+(define (square k) (* k k))
+(define (sum-term a b term) (if (> a b) 0 (+ (term a) (sum-term (1+ a) b term))))
+(sum-term 1 5 square)
+(sum-term -3 1 square)
+
+(define (sum a b term next) (if (> a b) 0 (+ (term a) (sum (next a) b term next))))
+
+(define (for n r i) (if(<= i n) (for n (* r i) (+ i 1)) r))
+(define (fact n) (for n 1 1))
+(define (my-exp x m) (sum 0. m (lambda (n) (/ (expt x n) (fact n))) 1+))
+
+(define (my-sin x m) (sum 0. m (lambda (n) (* (expt -1 n) (/ (expt x (+ (* 2 n) 1)) (fact (+ (* 2 n) 1))))) 1+))
+
+(define (product a b term next) (if (> a b) 1 (* (term a) (product (next a) b term next))))
+
+(define (sprod x p) (product 1 p (lambda (k) (sum 0 k (lambda (n) (* (expt -1 n) (/ (expt x (+ (* 2 n) 1)) (fact (+ (* 2 n) 1))))) 1+)) 1+))
+(sprod 2 1)
+
+(define (accumulate op nv a b term next) (if (> a b) nv (op (term a) (accumulate op nv (next a) b term next))))
+
+(define (sum2 a b term next) (accumulate + 0 a b term next))
+(define (product2 a b term next) (accumulate * 1 a b term next))
+
+(define (pol n x) (sum2 0 n (lambda (i) (* (- (+ n 1) i) (expt x i))) 1+))
+(define (p n x) (define (term i) (* (- (1+ n) i) (expt x i))) (accumulate + 0 0 n term 1+))
+(define (p2 n x) (accumulate + 0 0 n (lambda (i) (* (- (+ n 1) i) (expt x i))) 1+))
+(p 2 1)
+(p2 2 1)
+(pol 2 1)
+
+(define (accumulate-i op nv a b term next) (if (> a b) nv (accumulate-i op (op nv (term a)) (next a) b term next)))
+(define (id x) x)
+(define (p3 n x) (define (op u v) (+ (* u x) v)) (accumulate-i op 0 1 (1+ n) id 1+))
+
+
