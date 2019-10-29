@@ -1,0 +1,78 @@
+#lang racket
+;;1
+(define (my-length l) (if (null? l) 0 (+ 1 (my-length (cdr l)))))
+(define l1 (list 1 2 3 4 5 4))
+(define l2 (list 6 7 8 9 10))
+(my-length l1)
+;;2
+(define (my-sum l) (if (null? l) 0 (+ (car l) (my-sum (cdr l)))))
+(my-sum l1)
+;;3
+(define (my-last l) (if (null? (cdr l)) (car l) (my-last (cdr l))))
+(my-last l1)
+;;4
+(define (my-append l1 l2) (if (null? l1) l2 (cons (car l1) (my-append (cdr l1) l2))))
+(my-append l1 l2)
+;;5
+(define (push-back x l) (if (null? l) (list x) (cons (car l) (push-back x (cdr l)))))
+(push-back 100 l1)
+;;6
+(define (my-member x l) (if (null? l) #f (if (eq? (car l) x) #t (my-member x (cdr l)))))
+(my-member 4 l1)
+;;7
+(define (from-to a b) (if (> a b) '() (cons a (from-to (+ a 1) b))))
+(from-to 10 20)
+;;8
+(define (trim-last l) (if (null? (cdr l)) '() (cons (car l) (trim-last (cdr l)))))
+(define (my-reverse l) (if (null? l) '() (cons (my-last l) (my-reverse (trim-last l)))))
+(my-reverse l1)
+(define (my-reverse2 l) (if (null? l) '() (my-append (my-reverse2 (cdr l)) (list(car l)))))
+(my-reverse2 l1)
+;;9
+(define (my-map f l) (if (null? l) '() (cons (f (car l)) (my-map f (cdr l)))))
+(define (1+ x) (+ x 1))
+(my-map 1+ l1)
+;;10
+(define (my-filter pred? l) (if (null? l) '() (if (pred? (car l)) (cons (car l) (my-filter pred? (cdr l))) (my-filter pred? (cdr l)))))
+(my-filter odd? l1)
+;;11
+(define (my-remove pred? l) (if (null? l) '() (if (not (pred? (car l))) (cons (car l) (my-remove pred? (cdr l))) (my-remove pred? (cdr l)))))
+(my-remove odd? l1)
+(define (my-compose f g) (lambda (x) (f (g x))))
+(define (my-partition pred? l) (list (my-filter pred? l) (my-filter (compose not pred?) l)))
+(my-partition odd? l1)
+;;12
+(define (expt3 x) (expt x 3))
+(define (sqrt x) (expt x (/ 1 2)))
+(define (prime? x) (define (for i) (if (> i (sqrt x)) #t (if (= (remainder x i) 0) #f (for (+ i 1))))) (for 2))
+(define (my-scp l) (foldr + 0 (my-map expt3 (my-filter prime? l))))
+(my-scp l1)
+;;13
+(define (take n l) (if (= n 0) '() (if (null? l) '() (cons (car l) (take (- n 1) (cdr l))))))
+(take 2 l1)
+;;14
+(define (my-drop n l) (if (null? l) '() (if (> n 0) (my-drop (- n 1) (cdr l)) l)))
+(my-drop 3 l1)
+;;15
+(define (list-ref l n) (if (null? l) null (if (> n 0) (list-ref (cdr l) (- n 1)) (car l))))
+(list-ref l1 3)
+;;16
+;;17
+(define (my-insert n x l) (if (null? l) (list x) (my-append (push-back x (take n l)) (my-drop n l))))
+(define (my-insert2 n x l) (if (null? l) (list x) (if (= n 0) (cons x l) (cons (car l) (my-insert2 (- n 1) x (cdr l))))))
+(my-insert 3 100 l1)
+;;18
+(define (my-delete x l) (if (eq? (car l) x) (cdr l) (cons (car l) (my-delete x (cdr l)))))
+(my-delete 4 l1)
+;;19
+(define (num-length n) (if (= n 0) 0 (1+ (num-length (quotient n 10)))))
+(define (1- x) (- x 1))
+(define (explode-digits n) (if (= n 0) '()
+                               (cons (quotient n (expt 10 (1- (num-length n))))
+                                     (explode-digits
+                                      (- n
+                                         (*(quotient n (expt 10 (1- (num-length n))))
+                                           (expt 10 (1- (num-length n)))))))))
+(explode-digits 523)
+;;20
+;;(define (digit-occ d n) 
