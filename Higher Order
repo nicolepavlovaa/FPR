@@ -1,0 +1,75 @@
+#lang racket
+;;1
+(define (sum-step a b next) (if (> a b) 0 (+ a (sum-step (next a) b next))))
+;;
+(define (sum-term a b term) (if (> a b) 0 (+ (term a) (sum-term (+ 1 a) b term))))
+;;
+(define (sum a b term next) (if (> a b) 0 (+ (term a) (sum (next a) b term next))))
+;;2
+(define (fact n) (define (for i r) (if (<= i n) (for (+ i 1) (* r i)) r)) (for 1 1))
+(define (1+ x) (+ x 1))
+(define (my-exp m x) (lambda (i) (sum 0. m (/ (expt x i) (fact i)) 1+)))
+;;3
+(define (my-sin m x) (lambda (n) (sum 0. m (* (expt -1 n) (/ (expt x (+ (* 2 n) 1)) (fact (+ (* 2 n) 1)))) 1+)))
+(define (my-cos m x) (lambda (n) (sum 0. m (* (expt -1 n) (/ (expt x (* 2 n)) (fact (* 2 n)))) 1+)))
+;;4
+(define (product a b term next) (if (> a b) 1 (* (term a) (product (next a) b term next))))
+;;5
+(define (sprod x p) (product 1 p (lambda (k) (sum 0 k (lambda (n) (* (expt -1 n) (/ (expt x (+ (* 2 n) 1)) (fact(+ (* 2 n) 1))))) 1+)) 1+))
+;;6
+(define (accumulate op nv a b term next) (if (> a b) nv (op (term a) (accumulate op nv (next a) b term next))))
+;;
+(define (accumulate-i op nv a b term next) (if (> a b) nv (accumulate-i op (op nv (term a)) (next a) b term next)))
+;;7
+(define (id x) x)
+(define (fact-acc n) (accumulate * 1 n id 1+))
+(define (sum-acc n) (accumulate + 0 n id 1+))
+(define (product-acc n) (accumulate * 1 n id 1+))
+;;8
+(define (length n) (if (> n 0) (+ 1 (length (quotient n 10))) 0))
+(length 1234)
+(define (reverse n) (if (< n 10) n (+ (* (remainder n 10) (expt 10 (- (length n) 1))) (reverse (quotient n 10)))))
+(define (palindrome? a) (if (= a (reverse a)) #t #f))
+;;(define (reverse-i n) (define (for i r) (if (< i 10) (+ (* r 10) i) (for (quotient i 10) (+ (* r 10) (remainder i 10)))))(for n 0))
+;;(define (count-palindromes a b)
+;;(reverse-i 1234)
+(define (reverse-i n) (define (for curr-n r) (if (< curr-n 10) (+ r curr-n) (for (quotient curr-n 10) (+ r (* (remainder curr-n 10) (expt 10 (- (length curr-n) 1)))))))(for n 0))
+;;(reverse-i 1234)
+(define (count-palindromes a b) (if (> a b) 0 (if (palindrome? a) (+ 1 (count-palindromes (+ a 1) b)) (count-palindromes (+ 1 a) b))))
+;;9
+(define (sqrt x) (expt x (/ 1 2)))
+(define (prime? n) (accumulate (lambda (x y) (and x y)) #t 2 (+ 1 (sqrt n)) (lambda (i) (and (or (= n 2) (not(= (remainder n i) 0))) (not(= n 1)))) 1+))
+;;(define (prime? n) (define (for i) (if (= n 1) #f (if (= i n) #t (if (= (remainder n i) 0) #f (for (+ i 1)))))) (for 2))
+(prime? 4)
+;;10
+;;(define (exists? pred? a b) (if (> a b) #f (if (pred? a) #t (exists? pred? (+ 1 a) b))))
+;;(define (exists? pred? a b) (if (> a b) #f (or (pred? a) (exists? pred? (+ 1 a) b))))
+;;(exists? prime? 14 16)
+(define (exists? pred? a b) (accumulate (lambda (x y) (or x y)) #f a b (lambda (i) (pred? i)) 1+))
+(exists? prime? 14 16)
+;;11
+(define (forall? pred? a b) (accumulate (lambda (x y) (and x y)) #t a b (lambda (i) (pred? i)) 1+))
+(forall? prime? 2 3)
+(prime? 4)
+(prime? 3)
+;;12
+(define (count-pred pred? a b next) (accumulate + 0 a b (lambda (i) (if (pred? i) 1 0)) next))
+(count-pred odd? 10 15 1+)
+;;13
+(define (k-class n k) (if (= n k) 1 (if (= k 0) 1 (+ (k-class (- n 1) (- k 1)) (k-class (- n 1) k)))))
+(k-class 5 4)
+;;14
+(define (k-class-var n k) (* (fact k) (k-class n k)))
+;;15
+(define (flip f) (lambda (x y) (f y x)))
+;;16
+(define (twice f) (lambda (x) (f (f x)) ))
+(define (compose f g) (lambda (x) (f (g x))))
+;;(define (repeated f n)(lambda (x)(if (= n 0) x (f ((repeated f (- n 1)) x)))))
+(define (repeated f n)
+  (if (= n 1) f
+  (if (even? n)
+     (twice (repeated f (/ n 2)))
+     (lambda (x) (f ((repeated f (- n 1)) x)))
+  )))
+((repeated 1+ 3) 1)
