@@ -51,7 +51,7 @@
       (if (null? r) l
           (if (< (car (car l)) (car (car r))) (cons (car l) (merge-2 (cdr l) r))
               (cons (car r) (merge-2 l (cdr r)))))))
-;;why merge-2 is not working?
+
 (define (merge-sort-2 l)
   (if (null? (cdr l)) l
       (if (even? (length l))
@@ -59,7 +59,7 @@
            (merge-2 (merge-sort-2 (take (+ (quotient (length l) 2) 1) l)) (merge-sort-2 (drop (+ (quotient (length l) 2) 1) l))))))
 
 (define (between-interval? p1 l) (if (and (>= (car p1) (car (longest-interval l))) (<= (cdr p1) (cdr (longest-interval l)))) #t #f))
-(define (longest-interval-subsets l) (merge-sort-2 (list (filter (lambda (x) (between-interval? x l)) l))))
+(define (longest-interval-subsets l)(merge-sort-2 (filter (lambda (x) (between-interval? x l)) l)))
 
-;;(longest-interval-subsets '((24 . 25)(90 . 110)(0 . 100)(10 . 109)(1 . 3)(-4 . 2)))
+(longest-interval-subsets '((24 . 25)(90 . 110)(0 . 100)(10 . 109)(1 . 3)(-4 . 2)))
 
