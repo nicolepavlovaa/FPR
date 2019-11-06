@@ -1,0 +1,65 @@
+#lang racket
+(define (take n l) (if (null? l) '() (if (= n 0) '() (cons (car l) (take (- n 1) (cdr l))))))
+(define (drop n l) (if (null? l) '() (if (= n 0) l (drop (- n 1) (cdr l)))))
+;;(take 3 '(1 2 3 4))
+;;(drop 3 '(1 2 3 4 5))
+
+(define (merge l r)
+  (if (null? l) r
+      (if (null? r) l
+          (if (> (car l) (car r)) (cons (car l) (merge (cdr l) r))
+              (cons (car r) (merge l (cdr r)))))))
+
+(define (merge-sort l)
+  (if (null? (cdr l)) l
+      (if (even? (length l))
+          (merge (merge-sort (take (/ (length l) 2) l)) (merge-sort (drop (/ (length l) 2) l)))
+           (merge (merge-sort (take (+ (quotient (length l) 2) 1) l)) (merge-sort (drop (+ (quotient (length l) 2) 1) l))))))
+
+;;(merge-sort '(1 4 7 6 3 1 9))
+(define (2+ x) (+ x 2))
+(define (compose f g) (lambda (x) (f (g x))))
+(define (accumulate op nv a b term next) (if (> a b) nv (op (term a) (accumulate op nv (next a) b term next))))
+(define (repeated f g n) (define (helper h i) (if (= i 0) n (h (helper h (- i 2)))))
+  (helper (compose f g) n))
+;;(repeated (lambda (x) (+ x 1)) (lambda (x) (+ x 2)) 4)
+(define (permutable? a b f g)
+  (accumulate (lambda (x y) (and x y))
+   #t
+   (if (odd? a) (+ a 1) a) b
+   (lambda (i) (equal? (repeated f g i) (repeated g f i)))
+   2+))
+
+;;(permutable? 1 9 (lambda (x) (* x x)) (lambda (x) (* x x x)))
+
+(define (interval-len p) (- (cdr p) (car p)))
+
+(define (max-num l)
+  (if (null? (cdr l)) (car l)
+      (if (> (car l) (cadr l)) (max-num (cons (car l) (cddr l)))
+         (max-num (cons (cadr l) (cddr l))))))
+;;(max-num '(1 2 8 9 6 9 3))
+
+;;(define (longest-interval l) (max-num (map interval-len l)))
+;;(longest-interval  '((24 . 25)(90 . 110)(0 . 100)(10 . 109)(1 . 3)(-4 . 2)))
+                                                        
+(define (longest-interval l) (if (eq? (interval-len (car l)) (max-num (map interval-len l))) (car l) (longest-interval (cdr l))))
+;;(longest '((24 . 25)(90 . 110)(0 . 100)(10 . 109)(1 . 3)(-4 . 2)))
+
+(define (merge-2 l r)
+  (if (null? l) r
+      (if (null? r) l
+          (if (< (car (car l)) (car (car r))) (cons (car l) (merge-2 (cdr l) r))
+              (cons (car r) (merge-2 l (cdr r)))))))
+;;why merge-2 is not working?
+(define (merge-sort-2 l)
+  (if (null? (cdr l)) l
+      (if (even? (length l))
+          (merge-2 (merge-sort-2 (take (/ (length l) 2) l)) (merge-sort-2 (drop (/ (length l) 2) l)))
+           (merge-2 (merge-sort-2 (take (+ (quotient (length l) 2) 1) l)) (merge-sort-2 (drop (+ (quotient (length l) 2) 1) l))))))
+
+(define (between-interval? p1 l) (if (and (>= (car p1) (car (longest-interval l))) (<= (cdr p1) (cdr (longest-interval l)))) #t #f))
+(define (longest-interval-subsets l) (merge-sort-2 (list (filter (lambda (x) (between-interval? x l)) l))))
+
+;;(longest-interval-subsets '((24 . 25)(90 . 110)(0 . 100)(10 . 109)(1 . 3)(-4 . 2)))
+
