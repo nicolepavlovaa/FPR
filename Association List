@@ -1,0 +1,43 @@
+#lang racket
+
+(define (make-alist f keys) (map (lambda (x) (cons x (f x))) keys))
+(define (keys alist) (map car alist))
+(define (values alist) (map cdr alist))
+
+(define (assoc key alist)
+  (if (equal? key (car (car alist)))(car list)
+      (assoc key (cdr alist))))
+
+(define (assv key alist)
+  (if (eqv? key (car (car alist))) (car list)
+      (assv key (cdr alist))))
+
+(define (assq key alist)
+  (if (eq? key (car (car alist))) (car list)
+      (assq key (cdr alist))))
+
+(define (del-assoc key alist)
+  (filter (lambda (x) (not (equal? key (car x)))) alist))
+
+(define (add-assoc key value alist)
+  (cons (cons key value) (del-assoc key alist)))
+
+(define (add-key-val key value alist)
+  (if (null? alist) (list (cons key value))
+      (if (eqv? (car (car alist)) key)
+          (cons (cons key value) (cdr alist))
+          (cons (car alist) (add-key-val key value (cdr alist))))))
+
+(define (search p l)
+  (if (null? l) #f
+      (if (p (car l)) #t
+          (search p (cdr l)))))
+
+
+(define (search2 p l)
+  (and (not (null? l)) (or (p (car l)) (search2 (cdr l)))))
+
+(define (all? p l)
+  (not (search (lambda (x) (not (p x))) l)))
+
+
