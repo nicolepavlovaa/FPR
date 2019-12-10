@@ -1,0 +1,43 @@
+#lang racket
+
+(define (all? p? l) (foldr (lambda (x y) (and x y)) #t (map p? l)))
+
+(define (matrix? m)
+  (and (list? m)
+       (not (null? (car m)))
+       (all? list? m)
+       (all? (lambda (row) (= (length row) (length (car m)))) m)))
+
+(define (get-row i m) (list-ref m i))
+(define (get-col i m) (map (lambda (row) (list-ref row i)) m))
+(define (transpose m)
+  (if (null? (car m)) '()
+      (cons (map (lambda (row) (car row)) m) (transpose (map cdr m)))))
+
+(define (get-first-row m) (car m))
+(define (get-first-col m) (map car m))
+(define (get-first-col-2 m) (map (lambda (row) (car row)) m))
+
+(define (del-first-row m) (cdr m))
+(define (del-first-col m) (map cdr m))
+
+(define get-rows length)
+(define (get-cols m) (length (car m)))
+
+(define (sum-vectors v1 v2) (map + v1 v2))
+(define (sum-matrices m1 m2) (map sum-vectors m1 m2))
+
+(define (mult-vectors v1 v2) (apply + (map * v1 v2)))
+
+(define (mult-matrices m1 m2)
+  (define m2-tr (transpose m2))
+  (map (lambda (i) (map (lambda (j) (mult-vectors i j)) m2-tr))
+       m1))
+
+(define (make-rat n d)
+(if (or (= d 0) (= n 0)) (cons 0 1)
+(let* ((g (gcd n d))
+(ng (quotient n g))
+(dg (quotient d g)))
+(if (> dg 0) (cons ng dg)
+(cons (- ng) (- dg))))))
