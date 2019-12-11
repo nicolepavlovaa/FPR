@@ -1,0 +1,186 @@
+module Basics where
+
+    fact 0 = 1
+    fact n = n * fact (n - 1)
+    
+    div50 :: Int -> Int
+    div50 x = div 50 x
+    
+    hypothenuse a b = sqrt (a ** 2 + b ** 2)
+    
+    diag f x = f x x
+    sqrt2 = diag hypothenuse -- sqrt(2)*x
+    lastDigit = (`mod` 10)
+
+    plusTen::Int->Int
+    plusTen x = x + 10
+
+    div' :: Int -> Int -> Int
+    div' x y = floor (fromIntegral x / fromIntegral y)
+
+    mult:: Int->Int->Int
+    mult a b = a * b
+
+    abs' ::Int->Int
+    abs' n = if n<0 then -n else n
+
+    
+    fact''::Int->Int
+    fact'' 0 = 1
+    fact'' n = n * fact'' (n-1)
+
+    fact1::Int->Int
+    fact1 n | n==0 =1 | otherwise = n * fact1 (n-1)
+
+    fact2::Int->Int
+    fact2 n =
+        if n==0
+            then 1
+            else n* fact2(n-1)
+
+    fib n | n == 0 = 1 | n == 1 = 1 | otherwise = fib(n-1)+ fib(n-2)
+
+    gcd'::Int->Int->Int
+    gcd' x y =
+        if x==y
+            then x
+        else if x>y 
+            then gcd' (x-y) y
+        else gcd' x (y-x)
+
+    numLength::Int->Int
+    numLength x =
+        if div' x 10 == 0
+            then 1
+            else 1 + numLength(div' x 10)
+
+    sumDigits::Int->Int
+    sumDigits x = 
+        if div' x 10 == 0
+            then x
+            else  mod x 10 + sumDigits(div' x 10)
+
+    sumDigits2::Int->Int
+    sumDigits2 0 = 0
+    sumDigits2 x = rem x 10 + sumDigits2 (div x 10)
+
+    distFromTo::Double->Double->Double->Double->Double
+    distFromTo x1 y1 x2 y2 = sqrt (square(x1-x2)+ square(y1-y2))
+                             where square x = x * x
+
+    area::Double->Double->Double->Double->Double->Double->Double
+    area x1 y1 x2 y2 x3 y3 =
+        let a = distFromTo x1 y1 x2 y2
+            b = distFromTo x1 y1 x3 y3
+            c = distFromTo x2 y2 x3 y3
+            p = (a+b+c) / 2
+             in sqrt (p*(p-a)*(p-b)*(p-c))
+    
+    type Point = (Double, Double)
+    type Vector = Point  
+    type Student = (String, Int, Double)
+
+    addVectors::Vector->Vector->Vector
+    addVectors (x1, y1) (x2, y2) = (x1+x2, y1+y2)
+
+
+    betterStudent::Student->Student->Student
+    betterStudent (name1, fn1, grade1) (name2, fn2, grade2) = 
+        if grade1>grade2
+            then (name1, fn1, grade1)
+            else (name2, fn2, grade2)
+
+  
+
+    betterStudent2::Student->Student->Student
+    betterStudent2 s1@(_, _, grade1) s2@(_, _, grade2)
+     | grade1>grade2 = s1
+     | otherwise     = s2
+
+    appendLists::[a]->[a]->[a]
+    appendLists a b | null a = b | otherwise = (head a) : appendLists (tail a) b
+
+    reverseLists::[a]->[a]
+    reverseLists a
+     | null a = a
+     | otherwise = appendLists (reverseLists (tail a)) [head a]
+
+    containsElem::Eq a => a->[a]->Bool
+    containsElem a l
+     | a == head l = True
+     | otherwise = containsElem a (tail l)
+
+    splitAtn:: Int->[a]->([a],[a])
+    splitAtn n l = (take n l, drop n l)
+
+    zipWith'::(a->b->c)->[a]->[b]->[c]
+    zipWith' _ [] _ = []
+    zipWith' _ _ [] = []
+    zipWith' f (x:xs) (y:ys)= f x y : zipWith' f xs ys
+
+    applyTwice::(a->a)->a->a
+    applyTwice f x = f (f x)
+
+    flip'::(a->b->c)->(b->a->c)
+    flip' f = g
+        where g x y = f y x
+
+    flip''::(a->b->c)->b->a->c
+    flip'' f y x = f x y
+
+    myMap::(a->b)->[a]->[b]
+    myMap _ [] = []
+    myMap f (x:xs) = f x : myMap f xs
+
+    myFilter::(a->Bool)->[a]->[a]
+    myFilter _ [] = []
+    myFilter p (x:xs) 
+       | p x = x : filter p xs
+       | otherwise = filter p xs
+
+    quickSort::(Ord a)=>[a]->[a]
+    quickSort [] = []
+    quickSort (x:xs) = 
+        let smaller = quickSort(filter (<=x) xs)
+            bigger = quickSort(filter (>x) xs)
+        in smaller ++ [x] ++ bigger
+
+    largestDivisible::(Integral a)=> a
+    largestDivisible = head (filter p [100000, 99999..])
+         where p x = x `mod` 3829 == 0
+
+    sumOfOddSquares = sum (takeWhile (<10000) (filter odd (map (^2) [1..])))
+
+    chain::(Integral a)=>a->[a]
+    chain 1 = [1]
+    chain x
+      | odd x = x : chain(3 * x + 1)
+      | otherwise = x : chain(x `div` 2)
+
+    numLongChains::Int
+    numLongChains = length (filter longer (map chain [1..100]))
+         where longer xs = length xs > 15
+
+    maximum'::(Ord a) => [a]->a
+    maximum' = foldr1(\x acc -> if x > acc then x else acc)
+
+    reverse'::[a]->a
+    reverse'= foldl(\acc x -> x : acc) []
+
+    product'::(Num a)=>[a]->a
+    product'= foldr1 (*)
+
+    filter'::(a->Bool)->[a]->[a]
+    filter' p = foldr (\x acc -> if p x then x : acc else acc) []
+
+    head'::[a]->a
+    head' = foldr1 (\x _ -> x)
+    
+    last'::[a]->a
+    last'= foldl1 (\_ x -> x)
+
+    
+
+
+
+
