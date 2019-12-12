@@ -32,11 +32,11 @@
     (if (null? unvisited)
         path
         (if (null? stack)
-            (helper g unvisited (append (list (caar unvisited)) stack) path)
+            (helper g unvisited (car unvisited) path)
             (if (memq (car stack) path) (helper g unvisited (cdr stack) path)
                 (helper g
                     (cdr unvisited)
-                    (append (neighbours (car stack) g) (cdr stack))
+                    (cons (car (neighbours (car stack) g)) (cdr stack))
                     (append path (list (car stack))))))))
   (helper graph graph '() '()))
 
@@ -76,7 +76,7 @@
   (helper fun g))
 
 
-
+            
 
 
 
