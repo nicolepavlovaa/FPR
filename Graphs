@@ -1,0 +1,85 @@
+#lang racket
+(define (neighbours node g)
+      (cond
+         ((null? g) '())
+         ((equal? node (caar g)) (cdar g))
+         (else (neighbours node 
+                           (cdr g)))))
+
+(define (neighbours2 node g)
+  (if (null? g) '()
+      (if (equal? node (caar g)) (cdar g)
+          (neighbours2 node (cdr g)))))
+
+(define (dfs graph)
+  (define (helper g unvisited stack path)
+    (if (null? unvisited)
+        path
+        (if (null? stack)
+            (helper g unvisited (append (list (caar unvisited)) stack) path)
+            (if (memq (car stack) path)
+                (helper g unvisited (cdr stack) path)
+                (helper g
+                        (cdr unvisited)
+                        (append (list (car (neighbours (car stack) g))) (cdr stack))
+                        (append path (list (car stack))))))))
+  (helper graph graph '() '()))
+
+
+
+(define (dfs2 graph)
+  (define (helper g unvisited stack path)
+    (if (null? unvisited)
+        path
+        (if (null? stack)
+            (helper g unvisited (append (list (caar unvisited)) stack) path)
+            (if (memq (car stack) path) (helper g unvisited (cdr stack) path)
+                (helper g
+                    (cdr unvisited)
+                    (append (neighbours (car stack) g) (cdr stack))
+                    (append path (list (car stack))))))))
+  (helper graph graph '() '()))
+
+(define (deg v graph)
+  (if (null? graph) 0
+  (if (equal? (caar graph) v)
+      (+ (length (cdar graph)) (deg v (cdr graph)))
+      (if (memv v (car graph))
+          (+ 1 (deg v (cdr graph)))
+          (deg v (cdr graph))))))
+
+(define (eulerCycle? g)
+  (if (null? g) #t
+      (if (even? (deg (caar g) g)) (eulerCycle? (cdr g))
+          #f)))
+
+
+(define (vertices g) (map car g))
+(define g '((1 2) (2 3) (3 1 4) (4 3 5) (5 5)))
+
+(define (children v g)
+  (if (null? g) '()
+  (if (equal? (caar g) v) (cdar g)
+      (children v (cdr g)))))
+
+(define (edge? u v g)
+  (if (or (memv u (children v g)) (memv v (children u g))) #t #f))
+
+(define (1+ x) (+ x 1))
+
+(define (map-children v fun g)
+  (define listOfChildren (children v g))
+  (define (helper f g1)
+    (if (null? g1) '()
+    (if (memq (caar g1) listOfChildren) (cons (cons (f (caar g1)) (children (caar g1) g1)) (helper f (cdr g1)))
+        (cons (cons (caar g1) (children (caar g1) g1)) (helper f (cdr g1))))))
+  (helper fun g))
+
+
+
+
+
+
+
+
+
