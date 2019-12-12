@@ -1,0 +1,102 @@
+module Basics2 where
+
+    from10= [10..]
+
+    enumFromTo2::Int->Int->[Int]
+    enumFromTo2 a b 
+      | a > b = []
+      | otherwise = a : enumFromTo2 (a+1) b 
+
+    repeat_::a->[a]
+    repeat_ x = x: repeat_ x
+
+    divides::Int->Int->Bool
+    divides d n = n `rem` d == 0
+
+    sieve::[Int]->[Int]
+    sieve (x:xs) = 
+        x : sieve (filter (\y -> not (divides x y)) xs)
+
+    primes::[Int]
+    primes= sieve [2..]
+
+    myCycle::[a]->[a]
+    myCycle l = concat (repeat_ l)
+
+    myIterate::(a->a)->a->[a]
+    myIterate f x = x : myIterate f (f x)
+
+    myPitagor::[(Int, Int, Int)]
+    myPitagor = [(x,y,z)| z<-[2..], y<-[1..z-1], x<-[1..y-1], x^2 + y^2 == z^2]
+
+
+    setUnion::(Ord a)=>[a]->[a]->[a]
+    setUnion xs [] = xs
+    setUnion [] ys = ys
+    setUnion (x:xs) (y:ys) 
+      | x < y = x : setUnion xs (y:ys)
+      | y < x = y : setUnion (x:xs) ys
+      | otherwise = x : setUnion xs ys
+
+    setIntersect::(Ord a)=>[a]->[a]->[a]
+    setIntersect xs [] = []
+    setIntersect [] ys = []
+    setIntersect (x:xs) (y:ys)
+      | x == y = x: setIntersect xs ys
+      | x < y = setIntersect xs (y:ys)
+      | otherwise = setIntersect (x:xs) ys
+
+    setIntersect2::(Ord a)=>[a]->[a]->[a]
+    setIntersect2 xs [] = []
+    setIntersect2 (x:xs) l
+      | elem x l = x : setIntersect2 xs l
+      | otherwise = setIntersect2 xs l
+
+    setDiff::(Ord a)=>[a]->[a]->[a]
+    setDiff [] ys = []
+    setDiff xs [] = xs
+    setDiff (x:xs) l
+      | elem x l = setDiff xs l
+      | otherwise = x : setDiff xs l
+
+    setSymDiff::(Ord a)=>[a]->[a]->[a]
+    setSymDiff x y = setDiff (setUnion x y) (setIntersect x y)
+
+    countOcc num l = length (filter (\x -> length x == num) l)
+
+    
+    lfsort [] = []
+    lfsort (x:xs) =
+      let fewer = lfsort(filter (\y -> countOcc (length y) (x:xs) <= countOcc (length x) (x:xs)) xs )
+          more = lfsort(filter (\y -> countOcc (length y) (x:xs) > countOcc (length x) (x:xs)) xs )
+      in (fewer ++ x ++ "\n" ++ more)
+
+    sortIt::[String]->[String]
+    sortIt l = lines (dropWhile (=='\n') (lfsort l))
+
+    type Item = (String, Integer)
+
+    minimumTuple::[(String, Integer)]-> (String,Integer)
+    minimumTuple (x:xs) = minTail x xs
+      where minTail currMin [] = currMin
+            minTail (m, n) (p:ps)
+              | (snd p) < n && (snd p) >=0 = minTail p ps
+              | otherwise = minTail (m, n) ps
+
+    countExpiring::[(String, Integer)]-> Integer
+    countExpiring l = fromIntegral (length (filter (\x -> (snd x)<0) l))
+
+    minimumExpTuple::[(String, Integer)]-> (String,Integer)
+    minimumExpTuple (x:xs) = minTail x xs
+      where minTail currMin [] = currMin
+            minTail (m, n) (p:ps)
+              | (snd p) < n && (snd p) <0 = minTail p ps
+              | otherwise = minTail (m, n) ps
+
+    expiringItems::[Item] -> (String, Integer, String)
+    expiringItems l = (fst (minimumTuple l), countExpiring l,fst (minimumExpTuple l))
+
+
+
+
+
