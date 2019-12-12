@@ -1,0 +1,22 @@
+#lang racket
+
+(define the-empty-stream '())
+(define head car)
+(define (tail s) (force (cdr s)))
+(define empty-stream? null?)
+
+(define-syntax delay (syntax-rules () ((delay x) (lambda () x))))
+(define-syntax cons-stream (syntax-rules () ((cons-stream h t) (cons h (delay t)))))
+
+(define (enum a b) (if (> a b) '()
+                       (cons-stream a (enum (+ 1 a) b))))
+
+(define (first n s)
+  (if (or (empty-stream? s) (= n 0)) '()
+      (cons (head s) (first (- n 1) (tail s)))))
+
+(define (generate-fibs a b)
+  (cons-stream a (generate-fibs b (+ a b))))
+(define fibs (generate-fibs 0 1))
+
+                            
